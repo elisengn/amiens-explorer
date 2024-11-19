@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amiens Explorer</title>
+    <!-- Lien vers le fichier CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Page d'accueil du quiz Amiens Explorer -->
+    <div id="home">
+        <div class="header-container">
+            <!-- Ajout du logo -->
+            <img src="images/logo_amiens_explorer.png" alt="Logo Amiens Explorer" class="logo">
+            <h1 class="game-title">Amiens Explorer</h1>
+            <p class="game-description">Bienvenue sur <span class="highlight">Amiens Explorer</span>! Un quiz interactif sur l'histoire, les monuments, et la culture de la ville d'Amiens.</p>
+            <div class="button-container">
+                <button id="soloButton" onclick="chooseMode('solo')" class="game-button">Mode Solo</button>
+                <button id="multiplayerButton" onclick="chooseMode('multiplayer')" class="game-button">Mode Multijoueur</button>
+                <button id="libraryButton" onclick="openImageLibrary()" class="game-button">Bibliothèque</button>
+            </div>
+            <p class="warning-message">Attention : une fois une réponse sélectionnée, il n'est pas possible de la changer !</p>
+        </div>
+    </div>
+
+    <!-- Conteneur de saisie des joueurs -->
+    <div id="playerInputContainer" style="display: none;">
+        <h2>Entrez vos pseudos :</h2>
+        <div class="input-container">
+            <input type="text" id="playerOneName" placeholder="Pseudo Joueur 1">
+            <input type="text" id="playerTwoName" placeholder="Pseudo Joueur 2" style="display: none;">
+        </div>
+        <button onclick="startGame()" class="game-button">Démarrer le Jeu</button>
+    </div>
+
+    <!-- Conteneur du quiz -->
+    <div id="quizContainer" style="display: none;">
+        <div id="currentPlayer" style="display: none;">Tour de : <span id="playerTurn"></span></div>
+        <div id="progressBarContainer">
+            <div id="progressBar"></div>
+        </div>
+        <h2>Question <span id="currentQuestionNumber"></span> : <span id="questionText"></span></h2>
+        <ul id="answersList"></ul>
+        <div id="scoreDisplay" style="margin: 20px 0;"></div>
+        <button id="nextButton" onclick="nextQuestion()" style="display: none;">Question Suivante</button>
+        <div class="feedback" id="feedback"></div>
+        <button onclick="goToMainMenu()" class="game-button">Menu Principal</button>
+    </div>
+
+    <!-- Résumé du quiz -->
+    <div id="summaryContainer" style="display: none;">
+        <h2>Résumé de votre quiz</h2>
+        <div id="summaryContent"></div>
+        <button onclick="goToMainMenu()" class="game-button">Menu Principal</button>
+    </div>
+
+    <!-- Conteneur du leaderboard -->
+    <div id="leaderboardContainer" style="display: none;">
+        <h2>Tableau des Meilleurs Scores</h2>
+        <div id="leaderboardContent"></div>
+        <button onclick="goToMainMenu()" class="game-button">Menu Principal</button>
+    </div>
+
+    <!-- Lien vers le fichier JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

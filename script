@@ -1,0 +1,202 @@
+document.addEventListener("DOMContentLoaded", function() {
+    let scorePlayerOne = 0;
+    let scorePlayerTwo = 0;
+    let currentQuestionIndex = 0;
+    let currentPlayer = 1;
+    let mode = '';
+    let quizSummary = [];
+    let leaderboard = [];
+
+    // Les questions avec réponses et anecdotes
+    const questions = [
+        {
+            question: "Au Moyen-Âge, la culture de la waide permettait d’obtenir un pigment de quelle couleur ?",
+            answers: ["du jaune", "du bleu", "du vert", "du rouge"],
+            correctAnswer: "du bleu",
+            anecdote: "La waide est une plante tinctoriale utilisée pour teindre les tissus en bleu. Au Moyen-Âge, Amiens était un centre important de la production de waide, parfois appelée \"or bleu\" en raison de sa valeur économique. Les marchands parcouraient des centaines de kilomètres pour acheter ce pigment essentiel à l'industrie textile de l'époque."
+        },
+        // Ajoutez d'autres questions ici...
+    ];
+
+    // Fonction pour choisir le mode de jeu
+    window.chooseMode = function(selectedMode) {
+        mode = selectedMode;
+        document.getElementById('home').style.display = 'none';
+        document.getElementById('playerInputContainer').style.display = 'block';
+
+        if (mode === 'solo') {
+            document.getElementById('playerTwoName').style.display = 'none';
+        } else if (mode === 'multiplayer') {
+            document.getElementById('playerTwoName').style.display = 'block';
+        }
+    };
+
+    // Fonction pour démarrer le jeu
+    window.startGame = function() {
+        const playerOneName = document.getElementById('playerOneName').value.trim();
+        const playerTwoName = document.getElementById('playerTwoName').value.trim();
+
+        if (mode === 'solo' && !playerOneName) {
+            alert("Veuillez entrer le pseudo du joueur !");
+            return;
+        } else if (mode === 'multiplayer' && (!playerOneName || !playerTwoName)) {
+            alert("Veuillez entrer les pseudos des deux joueurs !");
+            return;
+        }
+
+        document.getElementById('playerInputContainer').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'block';
+
+        // Initialiser les valeurs
+        currentQuestionIndex = 0;
+        scorePlayerOne = 0;
+        scorePlayerTwo = 0;
+        currentPlayer = 1;
+        quizSummary = [];
+
+        if (mode === 'multiplayer') {
+            document.getElementById('currentPlayer').style.display = 'block';
+            document.getElementById('playerTurn').innerText = playerOneName;
+        } else {
+            document.getElementById('currentPlayer').style.display = 'none';
+        }
+
+        loadQuestion();
+    };
+
+    // Fonction pour charger une question
+    function loadQuestion() {
+        if (currentQuestionIndex < questions.length) {
+            let currentQuestion = questions[currentQuestionIndex];
+            document.getElementById('currentQuestionNumber').innerText = currentQuestionIndex + 1;
+            document.getElementById('questionText').innerText = currentQuestion.question;
+
+            const answersList = document.getElementById('answersList');
+            answersList.innerHTML = '';
+
+            currentQuestion.answers.forEach(answer => {
+                const li = document.createElement('li');
+                li.innerText = answer;
+                li.classList.add('answer-option');
+                li.onclick = function () {
+                    checkAnswer(answer, currentQuestion);
+                    disableAnswers();
+                    document.getElementById('nextButton').style.display = 'inline-block';
+                };
+                answersList.appendChild(li);
+            });
+
+            document.getElementById('feedback').innerText = '';
+            document.getElementById('nextButton').style.display = 'none';
+        } else {
+            endGame();
+        }
+    }
+
+    // Fonction pour vérifier la réponse choisie
+    function checkAnswer(answer, currentQuestion) {
+        const feedback = document.getElementById('feedback');
+        feedback.innerText = '';
+
+        if (answer === currentQuestion.correctAnswer) {
+            if (currentPlayer === 1) {
+                scorePlayerOne += 10;
+            } else {
+                scorePlayerTwo += 10;
+            }
+            feedback.innerText = "Bonne réponse !";
+            feedback.style.color = "green";
+        } else {
+            feedback.innerText = "Mauvaise réponse.";
+            feedback.style.color = "red";
+        }
+
+        feedback.innerHTML += `<br>Anecdote : ${currentQuestion.anecdote}`;
+        addSummaryEntry(answer, currentQuestion.correctAnswer, currentQuestion);
+    }
+
+    // Fonction pour désactiver les réponses une fois qu'une réponse est sélectionnée
+    function disableAnswers() {
+        const answersList = document.getElementById('answersList');
+        Array.from(answersList.children).forEach(li => {
+            li.onclick = null;
+            li.style.pointerEvents = 'none';
+        });
+    }
+
+    // Fonction pour ajouter une entrée au résumé
+    function addSummaryEntry(selectedAnswer, correctAnswer, currentQuestion) {
+        quizSummary.push({
+            question: currentQuestion.question,
+            selectedAnswer: selectedAnswer,
+            correctAnswer: correctAnswer,
+            anecdote: currentQuestion.anecdote,
+            player: currentPlayer
+        });
+    }
+
+    // Fonction pour passer à la question suivante
+    window.nextQuestion = function() {
+        currentQuestionIndex++;
+        if (mode === 'multiplayer') {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            document.getElementById('playerTurn').innerText = currentPlayer === 1 ? document.getElementById('playerOneName').value : document.getElementById('playerTwoName').value;
+        }
+        loadQuestion();
+    };
+
+    // Fonction pour terminer le jeu
+    function endGame() {
+        document.getElementById('quizContainer').style.display = 'none';
+        const summaryContainer = document.getElementById('summaryContainer');
+        summaryContainer.style.display = 'block';
+
+        const summaryContent = document.getElementById('summaryContent');
+        summaryContent.innerHTML = `<p>Score final Joueur 1 (${document.getElementById('playerOneName').value}) : ${scorePlayerOne} points</p>`;
+
+        if (mode === 'multiplayer') {
+            summaryContent.innerHTML += `<p>Score final Joueur 2 (${document.getElementById('playerTwoName').value}) : ${scorePlayerTwo} points</p>`;
+        }
+
+        quizSummary.forEach((entry, index) => {
+            summaryContent.innerHTML += `
+                <div class="summary-entry">
+                    <h4>Question ${index + 1} : ${entry.question}</h4>
+                    <p>Réponse du joueur ${entry.player} : ${entry.selectedAnswer}</p>
+                    <p>Bonne réponse : ${entry.correctAnswer}</p>
+                    <p>Anecdote : ${entry.anecdote}</p>
+                </div>
+            `;
+        });
+
+        updateLeaderboard();
+    }
+
+    // Fonction pour mettre à jour le leaderboard
+    function updateLeaderboard() {
+        const leaderboardContent = document.getElementById('leaderboardContent');
+        leaderboardContent.innerHTML = '';
+
+        leaderboard.push({ name: document.getElementById('playerOneName').value, score: scorePlayerOne });
+        if (mode === 'multiplayer') {
+            leaderboard.push({ name: document.getElementById('playerTwoName').value, score: scorePlayerTwo });
+        }
+
+        leaderboard.sort((a, b) => b.score - a.score);
+
+        leaderboard.slice(0, 10).forEach((entry, index) => {
+            leaderboardContent.innerHTML += `<p>${index + 1}. ${entry.name} : ${entry.score} points</p>`;
+        });
+
+        document.getElementById('leaderboardContainer').style.display = 'block';
+    }
+
+    // Fonction pour revenir au menu principal
+    window.goToMainMenu = function() {
+        document.getElementById('home').style.display = 'block';
+        document.getElementById('playerInputContainer').style.display = 'none';
+        document.getElementById('quizContainer').style.display = 'none';
+        document.getElementById('summaryContainer').style.display = 'none';
+        document.getElementById('leaderboardContainer').style.display = 'none';
+    };
+});
